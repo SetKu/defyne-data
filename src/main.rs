@@ -1,6 +1,11 @@
 use chrono::Local;
 use serde_json::{Map, Value};
-use std::{env, fs, path::Path, process::Command};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+    process::Command,
+    str::FromStr,
+};
 // use rayon::prelude::*;
 
 fn main() {
@@ -143,30 +148,28 @@ fn main() {
                     }
                 }
 
-                let embedded_word_fixes = [
-                    "derived",
-                    "synonyms",
-                    "hypernyms",
-                    "hyponyms",
-                ];
+                let embedded_word_fixes = ["derived", "synonyms", "hypernyms", "hyponyms"];
 
                 for embedded_heading in embedded_word_fixes {
                     if let Some(synonyms) = object.get(embedded_heading) {
                         let mut words = vec![];
-    
+
                         for synonym in synonyms.as_array().unwrap() {
                             words.push(Value::String(
                                 synonym
                                     .as_object()
                                     .unwrap()
                                     .get("word")
-                                    .expect(&format!("No word was provided in a {} item.", embedded_heading))
+                                    .expect(&format!(
+                                        "No word was provided in a {} item.",
+                                        embedded_heading
+                                    ))
                                     .as_str()
                                     .unwrap()
                                     .to_owned(),
                             ));
                         }
-    
+
                         object.insert(embedded_heading.to_owned(), Value::Array(words));
                     }
                 }
@@ -193,7 +196,10 @@ fn main() {
         "{}_wikitionary_english_modified.json",
         Local::now().format("%Y-%m-%dT%H-%M-%S").to_string()
     );
+    let mut path_buffer = PathBuf::from_str(&input_argument).unwrap();
+    path_buffer.pop();
+    path_buffer.push(file_name);
 
-    fs::write(file_name, serialized).expect("Failed to write the filtered data.");
-    println!("Done!");
+    fs::write(path_buffer.clone(), serialized).expect("Failed to write the filtered data.");
+    println!("Done! Wrote to {:?}", path_buffer);
 }
