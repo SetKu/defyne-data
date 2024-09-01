@@ -1,0 +1,1 @@
+Converts the raw Kaikki.org Wikitionary data into that used by Defyne, trimming and altering it.
