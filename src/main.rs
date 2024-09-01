@@ -145,6 +145,37 @@ fn main() {
                         let sense_object = sense.as_object_mut().unwrap();
                         sense_object.remove("tags");
                         sense_object.remove("id");
+
+                        if let Some(category_object) = sense_object.get("categories") {
+                            let mut topical_categories = vec![];
+                            
+                            for category in category_object.as_array().unwrap() {
+                                let category_object = category.as_object().unwrap();
+    
+                                if category_object.get("kind").unwrap().as_str().unwrap() == "topical" {
+                                    let mut map = Map::new();
+                                    map.insert("name".to_owned(), Value::String(category_object.get("name").unwrap().as_str().unwrap().to_owned()));
+                                    map.insert("parents".to_owned(), Value::Array(category_object.get("parents").unwrap().as_array().unwrap().to_owned()));
+                                    topical_categories.push(Value::Object(map));
+                                }
+                            }
+
+                            sense_object.insert("categories".to_owned(), Value::Array(topical_categories));
+                        } 
+
+                        if let Some(links_object) = sense_object.get("links").and_then(|o| o.as_array()) {
+                            let mut link_words = vec![];
+
+                            for link in links_object {
+                                let link_array = link.as_array().unwrap();
+                                
+                                if let Some(first) = link_array.first() {
+                                    link_words.push(Value::String(first.as_str().unwrap().to_owned().to_lowercase()));
+                                }
+                            }
+
+                            sense_object.insert("links".to_owned(), Value::Array(link_words));
+                        }
                     }
                 }
 
