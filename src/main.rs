@@ -58,7 +58,8 @@ fn main() {
         })
         .collect::<Vec<&mut Value>>();
 
-    let filter_words_count = counter;
+    let filter_words_count = filtered.len();
+    counter = 0;
     let acceptable_keys = [
         "pos",
         "head_templates",
