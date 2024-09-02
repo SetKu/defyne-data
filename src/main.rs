@@ -171,7 +171,7 @@ fn main() {
                         sense_object.remove("id");
                         sense_object.remove("raw_glosses");
                         sense_object.remove("senseid");
-                        sense_object.remove("derived");
+                        sense_object.remove("coordinate_terms");
 
                         if let Some(category_object) = sense_object.get("categories") {
                             let mut topical_categories = vec![];
@@ -190,8 +190,11 @@ fn main() {
                             sense_object.insert("categories".to_owned(), Value::Array(topical_categories));
                         }
 
+                        extractor(sense_object, "derived");
                         extractor(sense_object, "synonyms");
                         extractor(sense_object, "hypernyms");
+                        extractor(sense_object, "hyponyms");
+                        extractor(sense_object, "antonyms");
                         extractor(sense_object, "related");
                         extractor(sense_object, "alt_of");
 
