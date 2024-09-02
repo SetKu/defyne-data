@@ -169,6 +169,7 @@ fn main() {
                         let sense_object = sense.as_object_mut().unwrap();
                         sense_object.remove("tags");
                         sense_object.remove("id");
+                        sense_object.remove("raw_glosses");
 
                         if let Some(category_object) = sense_object.get("categories") {
                             let mut topical_categories = vec![];
@@ -201,6 +202,12 @@ fn main() {
                             }
 
                             sense_object.insert("links".to_owned(), Value::Array(link_words));
+                        }
+
+                        if let Some(translations) = sense_object.get_mut("translations").and_then(|o| o.as_array_mut()) {
+                            for translation in translations {
+                                translation.as_object_mut().expect("Translation entry wasn't an object, for some reason.").remove("_dis1");
+                            }
                         }
                     }
                 }
