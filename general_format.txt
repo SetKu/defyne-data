@@ -1,0 +1,33 @@
+etymology_text str?
+expansion str
+forms [{}]
+	form str
+	tags []
+pos str
+senses [{}]?
+	examples [{}]?
+		ref str?
+		text str?
+		type str?
+	alt_of [str]?
+	categories [{}]?
+		name str
+		parents [str]?
+	topics [str]? // Hyphen hasn't been removed!
+	glosses [str]? // Raw glosses removed
+	links [str]?
+	translations [{}]?
+		lang str?
+		roman str?
+		sense str?
+		word str
+		tags [str]? // Feminine, masculine, neuter, etc.
+sounds {}?
+	ipa str?
+	mp3_url str?
+	rhymes str?
+synonyms [str]?
+hypernyms [str]?
+hyponyms [str]?
+antonyms [str]?
+word str
