@@ -186,9 +186,10 @@ fn main() {
                             }
 
                             sense_object.insert("categories".to_owned(), Value::Array(topical_categories));
+                        }
 
-                            extractor(sense_object, "synonyms");
-                        } 
+                        extractor(sense_object, "synonyms");
+                        extractor(sense_object, "related");
 
                         if let Some(links_object) = sense_object.get("links").and_then(|o| o.as_array()) {
                             let mut link_words = vec![];
@@ -206,9 +207,19 @@ fn main() {
 
                         if let Some(translations) = sense_object.get_mut("translations").and_then(|o| o.as_array_mut()) {
                             for translation in translations {
-                                translation.as_object_mut().expect("Translation entry wasn't an object, for some reason.").remove("_dis1");
+                                let handle = translation.as_object_mut().expect("Translation entry wasn't an object, for some reason.");
+                                handle.remove("_dis1");
+                                handle.remove("code");
                             }
                         }
+                    }
+                }
+
+                if let Some(translations) = object.get_mut("translations").and_then(|o| o.as_array_mut()) {
+                    for translation in translations {
+                        let handle = translation.as_object_mut().expect("Translation entry wasn't an object, for some reason.");
+                        handle.remove("_dis1");
+                        handle.remove("code");
                     }
                 }
 
