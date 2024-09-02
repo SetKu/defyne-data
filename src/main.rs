@@ -94,6 +94,30 @@ fn main() {
             //
 
             {
+                let extractor = |object: &mut Map<String, Value>, key: &str| {
+                    if let Some(wrappers) = object.get(key) {
+                        let mut words = vec![];
+
+                        for wrapper in wrappers.as_array().unwrap() {
+                            words.push(Value::String(
+                                wrapper
+                                    .as_object()
+                                    .unwrap()
+                                    .get("word")
+                                    .expect(&format!(
+                                        "No word was provided in a {} item.",
+                                        key
+                                    ))
+                                    .as_str()
+                                    .unwrap()
+                                    .to_owned(),
+                            ));
+                        }
+
+                        object.insert(key.to_owned(), Value::Array(words));
+                    }
+                };
+
                 if let Some(head_templates) = object.get_mut("head_templates") {
                     let mut expansion: Option<Value> = None;
 
@@ -161,6 +185,8 @@ fn main() {
                             }
 
                             sense_object.insert("categories".to_owned(), Value::Array(topical_categories));
+
+                            extractor(sense_object, "synonyms");
                         } 
 
                         if let Some(links_object) = sense_object.get("links").and_then(|o| o.as_array()) {
@@ -182,27 +208,7 @@ fn main() {
                 let embedded_word_fixes = ["derived", "synonyms", "hypernyms", "hyponyms"];
 
                 for embedded_heading in embedded_word_fixes {
-                    if let Some(synonyms) = object.get(embedded_heading) {
-                        let mut words = vec![];
-
-                        for synonym in synonyms.as_array().unwrap() {
-                            words.push(Value::String(
-                                synonym
-                                    .as_object()
-                                    .unwrap()
-                                    .get("word")
-                                    .expect(&format!(
-                                        "No word was provided in a {} item.",
-                                        embedded_heading
-                                    ))
-                                    .as_str()
-                                    .unwrap()
-                                    .to_owned(),
-                            ));
-                        }
-
-                        object.insert(embedded_heading.to_owned(), Value::Array(words));
-                    }
+                    extractor(object, &embedded_heading);
                 }
             }
 
