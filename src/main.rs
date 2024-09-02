@@ -171,6 +171,7 @@ fn main() {
                         sense_object.remove("id");
                         sense_object.remove("raw_glosses");
                         sense_object.remove("senseid");
+                        sense_object.remove("derived");
 
                         if let Some(category_object) = sense_object.get("categories") {
                             let mut topical_categories = vec![];
