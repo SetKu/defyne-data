@@ -190,6 +190,7 @@ fn main() {
 
                         extractor(sense_object, "synonyms");
                         extractor(sense_object, "related");
+                        extractor(sense_object, "alt_of");
 
                         if let Some(links_object) = sense_object.get("links").and_then(|o| o.as_array()) {
                             let mut link_words = vec![];
