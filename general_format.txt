@@ -1,8 +1,8 @@
 etymology_text str?
-expansion str
-forms [{}]
+expansion str?
+forms [{}]?
 	form str
-	tags []
+	tags [str]?
 pos str
 senses [{}]?
 	examples [{}]?
@@ -20,14 +20,14 @@ senses [{}]?
 		lang str?
 		roman str?
 		sense str?
-		word str
+		word str?
 		tags [str]? // Feminine, masculine, neuter, etc.
 sounds {}?
 	ipa str?
 	mp3_url str?
 	rhymes str?
 synonyms [str]?
-hypernyms [str]?
+hypernyms [str]? (appears to be empty for all entries in the seed file)
 hyponyms [str]?
 antonyms [str]?
 word str
