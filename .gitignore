@@ -2,3 +2,4 @@
 ./kaikki-raw-english.jsonl
 ./output.json
 .vscode
+.DS_Store
