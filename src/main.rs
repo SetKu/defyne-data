@@ -12,10 +12,17 @@ fn main() {
     let word_list_raw: String =
         fs::read_to_string(Path::new("./kaggle_word_list.txt")).expect("Unable to read word list.");
     let word_list: Vec<&str> = word_list_raw.lines().collect();
-    let input_argument = env::args().skip(1).next().expect("No input was provided.");
+
+    let mut args = env::args().skip(1);
+    if args.len() < 1 {
+        eprintln!("Error: No input file provided.\n");
+        eprintln!("Usage: defyne-data <input.jsonl>");
+        std::process::exit(1);
+    }
+
+    let input_argument = args.next().expect("No input was provided.");
 
     println!("Using jq to convert the .jsonl file to .json. This may take a while...");
-
     let output = Command::new("jq")
         .args(["-s", ".", &input_argument])
         .output()
@@ -36,7 +43,6 @@ fn main() {
     let length = 40;
 
     let filtered = json_array
-        // Change into .into_par_iter to add paralellism. This prevents the current reporting solution from working.
         .into_iter()
         .filter(|value| {
             counter += 1;
@@ -105,10 +111,7 @@ fn main() {
                                     .as_object()
                                     .unwrap()
                                     .get("word")
-                                    .expect(&format!(
-                                        "No word was provided in a {} item.",
-                                        key
-                                    ))
+                                    .expect(&format!("No word was provided in a {} item.", key))
                                     .as_str()
                                     .unwrap()
                                     .to_owned(),
@@ -178,19 +181,42 @@ fn main() {
 
                         if let Some(category_object) = sense_object.get("categories") {
                             let mut topical_categories = vec![];
-                            
+
                             for category in category_object.as_array().unwrap() {
                                 let category_object = category.as_object().unwrap();
-    
-                                if category_object.get("kind").unwrap().as_str().unwrap() == "topical" {
+
+                                if category_object.get("kind").unwrap().as_str().unwrap()
+                                    == "topical"
+                                {
                                     let mut map = Map::new();
-                                    map.insert("name".to_owned(), Value::String(category_object.get("name").unwrap().as_str().unwrap().to_owned()));
-                                    map.insert("parents".to_owned(), Value::Array(category_object.get("parents").unwrap().as_array().unwrap().to_owned()));
+                                    map.insert(
+                                        "name".to_owned(),
+                                        Value::String(
+                                            category_object
+                                                .get("name")
+                                                .unwrap()
+                                                .as_str()
+                                                .unwrap()
+                                                .to_owned(),
+                                        ),
+                                    );
+                                    map.insert(
+                                        "parents".to_owned(),
+                                        Value::Array(
+                                            category_object
+                                                .get("parents")
+                                                .unwrap()
+                                                .as_array()
+                                                .unwrap()
+                                                .to_owned(),
+                                        ),
+                                    );
                                     topical_categories.push(Value::Object(map));
                                 }
                             }
 
-                            sense_object.insert("categories".to_owned(), Value::Array(topical_categories));
+                            sense_object
+                                .insert("categories".to_owned(), Value::Array(topical_categories));
                         }
 
                         extractor(sense_object, "derived");
@@ -201,23 +227,32 @@ fn main() {
                         extractor(sense_object, "related");
                         extractor(sense_object, "alt_of");
 
-                        if let Some(links_object) = sense_object.get("links").and_then(|o| o.as_array()) {
+                        if let Some(links_object) =
+                            sense_object.get("links").and_then(|o| o.as_array())
+                        {
                             let mut link_words = vec![];
 
                             for link in links_object {
                                 let link_array = link.as_array().unwrap();
-                                
+
                                 if let Some(first) = link_array.first() {
-                                    link_words.push(Value::String(first.as_str().unwrap().to_owned().to_lowercase()));
+                                    link_words.push(Value::String(
+                                        first.as_str().unwrap().to_owned().to_lowercase(),
+                                    ));
                                 }
                             }
 
                             sense_object.insert("links".to_owned(), Value::Array(link_words));
                         }
 
-                        if let Some(translations) = sense_object.get_mut("translations").and_then(|o| o.as_array_mut()) {
+                        if let Some(translations) = sense_object
+                            .get_mut("translations")
+                            .and_then(|o| o.as_array_mut())
+                        {
                             for translation in translations {
-                                let handle = translation.as_object_mut().expect("Translation entry wasn't an object, for some reason.");
+                                let handle = translation
+                                    .as_object_mut()
+                                    .expect("Translation entry wasn't an object, for some reason.");
                                 handle.remove("_dis1");
                                 handle.remove("code");
                             }
@@ -225,9 +260,14 @@ fn main() {
                     }
                 }
 
-                if let Some(translations) = object.get_mut("translations").and_then(|o| o.as_array_mut()) {
+                if let Some(translations) = object
+                    .get_mut("translations")
+                    .and_then(|o| o.as_array_mut())
+                {
                     for translation in translations {
-                        let handle = translation.as_object_mut().expect("Translation entry wasn't an object, for some reason.");
+                        let handle = translation
+                            .as_object_mut()
+                            .expect("Translation entry wasn't an object, for some reason.");
                         handle.remove("_dis1");
                         handle.remove("code");
                     }
